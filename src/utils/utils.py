@@ -144,7 +144,7 @@ def style_app():
     [data-testid="stSidebar"][aria-expanded="true"]{
            min-width: 450px;
            max-width: 450px;
-           background-color: #2C2C2C;
+           background-color: #3C3D37;
        }
     </style>
     """, unsafe_allow_html=True)
@@ -155,13 +155,13 @@ def select_box_css():
     <style>
     /* Change background and text color of the selectbox */
     div[data-baseweb="select"] > div {
-        background-color: #ffffff; /* Change this to your desired background color */
+        background-color: #697565; /* Change this to your desired background color */
         color: #000000; /* Change this to your desired text color */
         font-weight: bold;
     }
     /* Optional: Change the dropdown options' text color */
     div[data-baseweb="select"] > div > div > div {
-        color: #000000; /* Change this to your desired text color */
+        color: #FFFFFF; /* Change this to your desired text color */
     }
     </style>
     """,

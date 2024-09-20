@@ -25,7 +25,7 @@ style_app()
 image = "src/logo/lyzr-logo-light.png"
 st.image(image=image, width=200)
 
-st.header("StockSage AI")
+st.header("StockSage AI 📈📉")
 st.markdown("##### Powered by [Lyzr Agent API](https://agent.api.lyzr.app/docs#overview)")
 st.markdown('---')
 
@@ -33,11 +33,14 @@ st.markdown('---')
 options_list = company_list()
 
 select_box_css()
-selected_option = st.selectbox("Select a Company", options_list)
-movement_trends = st.selectbox('Select any movement trend', ['30-days', '90-days'])
-
 col1, col2 = st.columns(2)
 with col1:
+    selected_option = st.selectbox("Select a Company", options_list)
+with col2:
+    movement_trends = st.selectbox('Select any Price Movement', ['30-days', '90-days'])
+
+col3, col4 = st.columns(2)
+with col3:
     if st.button("Save Option"):
         if movement_trends == "30-days":
             save_option(selected_option, movementTrends='1mo', directory=Data)
@@ -46,7 +49,7 @@ with col1:
             save_option(selected_option, movementTrends='3mo', directory=Data)
 
 
-with col2:
+with col4:
     if st.button('Clear'):
         remove_existing_files(Data)
         
@@ -62,27 +65,28 @@ else:
 
 if st.button('Analyze'):
     if (len(file) > 0):
+        with st.spinner(f'🤖 Agent Analyzing {selected_option} Stocks Data'):
 
-        company_info = extract_company_info(ticker_symbol=selected_option)
+            company_info = extract_company_info(ticker_symbol=selected_option)
+            company_csv_filepath = get_files_in_directory(directory=Data)
+            company_df = pd.read_csv(company_csv_filepath[0])
 
-        company_csv_filepath = get_files_in_directory(directory=Data)
-        company_df = pd.read_csv(company_csv_filepath[0])
+            agent_api_client = AgentAPI(x_api_key=LYZR_API_KEY)
 
-        agent_api_client = AgentAPI(x_api_key=LYZR_API_KEY)
+            chat_body = ChatRequest(
+                user_id=User_ID,
+                agent_id=Agent_ID,
+                message=f"This is company info:{company_info} and this is the company stock data file{company_df} for {movement_trends}",
+                session_id=Session_ID
+            )
 
-        chat_body = ChatRequest(
-            user_id=User_ID,
-            agent_id=Agent_ID,
-            message=f"This is company info:{company_info} and this is the company stock data file{company_df} for {movement_trends}",
-            session_id=Session_ID
-        )
+            analysis = agent_api_client.chat_with_agent(json_body=chat_body)
 
-        analysis = agent_api_client.chat_with_agent(json_body=chat_body)
-
-        if analysis:
-            disclamer_app()
-            st.markdown('---')
-            st.write(analysis['response'])
+            if analysis:
+                disclamer_app()
+                st.markdown('---')
+                st.write(" 🤖 Agent find out the result")
+                st.write(analysis['response'])
 
     else:
         st.warning('Please save the company data')
